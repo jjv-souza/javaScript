@@ -47,5 +47,3 @@ formulario.addEventListener("submit", (e) => {
 
   input.value = "";
 });
-
-console.log("BLA BLA BLA");
