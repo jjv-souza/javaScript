@@ -3,171 +3,250 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Cadastro de Produtos</title>
     <style>
       * {
-        padding: 0px;
-        margin: 0px;
+        padding: 0;
+        margin: 0;
         box-sizing: border-box;
       }
 
       body {
+        min-height: 100vh;
+        padding: 50px 20px;
+
+        font-family: Arial, sans-serif;
+        background-color: #eeeeee;
+        color: #222;
+
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 20px;
-
-        padding-top: 60px;
+        gap: 25px;
       }
+
+      /* --- Formulário --- */
 
       form {
-        width: 300px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
+        width: 350px;
+        padding: 30px;
 
-        background-color: gray;
-        padding: 40px;
-        border-radius: 5px;
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.336);
-      }
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.15);
 
-      input {
-        padding: 5px 8px;
-        text-align: center;
-      }
-
-      button {
-        padding: 5px 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      button:hover {
-        transform: scale(1.1);
-      }
-
-      #lista {
         display: flex;
         flex-direction: column;
         gap: 10px;
-
-        margin-bottom: 40px;
       }
 
-      article {
-        width: 300px;
-        background-color: lightslategray;
-        color: white;
-        padding: 40px;
+      form h1 {
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      form button {
+        padding: 10px;
+        border: none;
         border-radius: 5px;
 
-        display: flex;
-        justify-content: space-between;
+        background-color: #333;
+        color: white;
+
+        cursor: pointer;
       }
 
-      h2 {
+      /* --- Filtros --- */
+
+      #filtros {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      #filtros button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+
+        background-color: #333;
+        color: white;
+
+        cursor: pointer;
+      }
+
+      /* --- Lista --- */
+
+      #lista {
+        width: 350px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* --- Produto --- */
+
+      article {
+        padding: 20px;
+
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.12);
+
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      article h2 {
         font-size: 1.2em;
-        font-weight: normal;
+      }
+
+      article p {
+        color: #555;
+      }
+
+      article button {
+        align-self: flex-end;
+
+        padding: 6px 10px;
+        border: none;
+        border-radius: 5px;
+
+        background-color: #b3261e;
+        color: white;
+
+        cursor: pointer;
       }
     </style>
   </head>
+
   <body>
     <form id="form">
-      <input id="titulo" type="text" placeholder="Nome do filme" />
-      <input id="nota" type="number" step="0.1" placeholder="Nota" />
+      <h1>Produtos</h1>
 
-      <button type="submit">Adicionar</button>
+      <input id="nome" type="text" placeholder="Nome do produto" />
+
+      <input id="preco" type="number" placeholder="Preço" step="0.01" />
+
+      <input id="categoria" type="text" placeholder="Categoria" />
+
+      <button type="submit">Adicionar produto</button>
     </form>
 
     <div id="filtros">
       <button data-filtro="todos">Todos</button>
-      <button data-filtro="bons">Nota 9+</button>
-      <button data-filtro="medianos">Nota abaixo de 9</button>
+      <button data-filtro="perifericos">Periféricos</button>
+      <button data-filtro="hardware">Hardware</button>
+      <button data-filtro="baratos">Até R$100</button>
     </div>
 
-    <div id="lista"></div>
+    <section id="lista"></section>
 
     <script>
-      const filmes = [
-        { titulo: "Interestelar", nota: 9 },
-        { titulo: "O Batman", nota: 8 },
-        { titulo: "Shrek", nota: 10 },
-        { titulo: "Corra!", nota: 8.5 },
+      let produtos = [
+        { nome: "Teclado", preco: 150, categoria: "Periférico" },
+        { nome: "Mouse", preco: 80, categoria: "Periférico" },
+        { nome: "Monitor", preco: 900, categoria: "Hardware" },
+        { nome: "SSD 1TB", preco: 450, categoria: "Hardware" },
       ];
 
-      //--- Area do DOM ---
+      //--- DOM ---//
       const lista = document.getElementById("lista");
       const form = document.getElementById("form");
-      const filtros = document.getElementById("filtros");
+      const filtros = document.getElementById('filtros')
 
-      //--- Funções ---
-      function criarFilme(filme) {
-        const article = document.createElement("article");
+      //--- FUNÇÕES ---//
+      function criarProduto(novo) {
+        const card = document.createElement('article')
 
-        const nome = document.createElement("h2");
-        nome.textContent = filme.titulo;
+        let nome = document.createElement("h2");
+        nome.textContent = novo.nome;
 
-        const nota = document.createElement("p");
-        nota.textContent = "nota: " + filme.nota;
+        let preco = document.createElement("p");
+        preco.textContent = 'custa R$'+novo.preco;
 
-        article.appendChild(nome);
-        article.appendChild(nota);
-        lista.appendChild(article);
+        let categoria = document.createElement("p");
+        categoria.textContent = novo.categoria;
+
+        card.appendChild(nome);
+        card.appendChild(preco);
+        card.appendChild(categoria);
+        lista.appendChild(card)
       }
 
-      filmes.forEach((item) => {
-        criarFilme(item);
-      });
-
+      //--- INPUT ---//
       form.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        const inputNome = document.getElementById("titulo");
-        const inputNota = document.getElementById("nota");
+        const nome = document.getElementById("nome");
+        const preco = document.getElementById("preco");
+        const categoria = document.getElementById("categoria");
 
-        if (inputNome.value.trim() !== "" && inputNota.value.trim() !== "") {
-          const getFilme = {
-            titulo: inputNome.value,
-            nota: inputNota.value,
-          };
+        if (
+          nome.value.trim() !== "" &&
+          preco.value.trim() !== "" &&
+          categoria.value.trim() !== ""
+        ) {
+            const novoProduto = {
+                nome: nome.value,
+                preco: preco.value,
+                categoria: categoria.value
+            }
 
-          filmes.push(getFilme);
-          criarFilme(getFilme);
+            produtos.push(novoProduto)
+            criarProduto(novoProduto)
+            localStorage.setItem('produtos', JSON.stringify(produtos))
 
-          inputNome.value = "";
-          inputNota.value = "";
+            nome.value = ''
+            preco.value = ''
+            categoria.value = ''
         }
       });
 
-      //--- Filtros ---
-      filtros.addEventListener("click", (e) => {
-        const botao = e.target.closest("button");
-        if (!botao) return;
+      //---FILTROS---//
+      filtros.addEventListener('click', (e) => {
+        const botao = e.target.closest('button')
+        if(!botao) return
 
-        //--- Bons acima ou igual à 9 ---
-        if (botao.dataset.filtro === "bons") {
-          const bons = filmes.filter((item) => {
-            return item.nota >= 9;
-          });
-          lista.innerHTML = "";
-          bons.forEach((item) => {
-            criarFilme(item);
-          });
-        
-        //--- Medianos menos q 9 ---
-        } else if (botao.dataset.filtro === "medianos") {
-          const medio = filmes.filter((item) => item.nota < 9);
-          lista.innerHTML = "";
-          medio.forEach((item) => criarFilme(item));
+        if(botao.dataset.filtro === 'perifericos'){
+            lista.innerHTML = ''
+            const perifericos = produtos.filter((i)=> i.categoria === 'Periférico')
+            perifericos.forEach((i)=> criarProduto(i))
+        }else 
 
-        //--- Todos ---
-        } else if (botao.dataset.filtro === "todos") {
-          lista.innerHTML = "";
-          filmes.forEach((item) => criarFilme(item));
+        if(botao.dataset.filtro === 'hardware'){
+            lista.innerHTML = ''
+            const hardware = produtos.filter((i)=> i.categoria === 'Hardware')
+            hardware.forEach((i)=> criarProduto(i))
+        }else
+
+        if(botao.dataset.filtro === 'baratos'){
+            lista.innerHTML = ''
+            const barato = produtos.filter((i)=> i.preco <= 100)
+            barato.forEach((i)=> criarProduto(i))
+        }else
+
+        if(botao.dataset.filtro === 'todos'){
+            lista.innerHTML = ''
+            produtos.forEach((i)=> criarProduto(i))
         }
-      });
+      })
+
+      //---LocalStorage---//
+      const dados = JSON.parse(localStorage.getItem('produtos'))
+      if(dados){
+        produtos = dados
+      }
+      produtos.forEach((item)=> criarProduto(item))
     </script>
   </body>
 </html>

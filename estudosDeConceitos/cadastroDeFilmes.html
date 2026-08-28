@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Filmes</title>
+    <style>
+      * {
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+
+        padding-top: 60px;
+      }
+
+      form {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+
+        background-color: gray;
+        padding: 40px;
+        border-radius: 5px;
+        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.336);
+      }
+
+      input {
+        padding: 5px 8px;
+        text-align: center;
+      }
+
+      button {
+        padding: 5px 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        transform: scale(1.1);
+      }
+
+      #lista {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        margin-bottom: 40px;
+      }
+
+      article {
+        width: 300px;
+        background-color: lightslategray;
+        color: white;
+        padding: 40px;
+        border-radius: 5px;
+
+        display: flex;
+        justify-content: space-between;
+      }
+
+      h2 {
+        font-size: 1.2em;
+        font-weight: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="form">
+      <input id="titulo" type="text" placeholder="Nome do filme" />
+      <input id="nota" type="number" step="0.1" placeholder="Nota" />
+
+      <button type="submit">Adicionar</button>
+    </form>
+
+    <div id="filtros">
+      <button data-filtro="todos">Todos</button>
+      <button data-filtro="bons">Nota 9+</button>
+      <button data-filtro="medianos">Nota abaixo de 9</button>
+    </div>
+
+    <div id="lista"></div>
+
+    <script>
+      let filmes = [
+        { titulo: "Interestelar", nota: 9 },
+        { titulo: "O Batman", nota: 8 },
+        { titulo: "Shrek", nota: 10 },
+        { titulo: "Corra!", nota: 8.5 },
+      ];
+
+      //--- Area do DOM ---
+      const lista = document.getElementById("lista");
+      const form = document.getElementById("form");
+      const filtros = document.getElementById("filtros");
+
+      //--- Funções ---
+      function criarFilme(filme) {
+        const article = document.createElement("article");
+
+        const nome = document.createElement("h2");
+        nome.textContent = filme.titulo;
+
+        const nota = document.createElement("p");
+        nota.textContent = "nota: " + filme.nota;
+
+        article.appendChild(nome);
+        article.appendChild(nota);
+        lista.appendChild(article);
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const inputNome = document.getElementById("titulo");
+        const inputNota = document.getElementById("nota");
+
+        if (inputNome.value.trim() !== "" && inputNota.value.trim() !== "") {
+          const novoFilme = {
+            titulo: inputNome.value,
+            nota: inputNota.value,
+          };
+
+          filmes.push(novoFilme);
+          criarFilme(novoFilme);
+
+          localStorage.setItem('filmes', JSON.stringify(filmes))
+
+          inputNome.value = "";
+          inputNota.value = "";
+        }
+      });
+
+      //--- Filtros ---
+      filtros.addEventListener("click", (e) => {
+        const botao = e.target.closest("button");
+        if (!botao) return;
+
+        //--- Bons acima ou igual à 9 ---
+        if (botao.dataset.filtro === "bons") {
+          const bons = filmes.filter((item) => {
+            return item.nota >= 9;
+          });
+          lista.innerHTML = "";
+          bons.forEach((item) => {
+            criarFilme(item);
+          });
+        
+        //--- Medianos menos q 9 ---
+        } else if (botao.dataset.filtro === "medianos") {
+          const medio = filmes.filter((item) => item.nota < 9);
+          lista.innerHTML = "";
+          medio.forEach((item) => criarFilme(item));
+
+        //--- Todos ---
+        } else if (botao.dataset.filtro === "todos") {
+          lista.innerHTML = "";
+          filmes.forEach((item) => criarFilme(item));
+        }
+      });
+
+      const dados = JSON.parse(localStorage.getItem('filmes'))
+      
+      if(dados){
+        filmes = dados
+      }
+
+      filmes.forEach((item)=>{
+        criarFilme(item)
+      })
+    </script>
+  </body>
+</html>
