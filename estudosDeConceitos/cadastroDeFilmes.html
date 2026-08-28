@@ -12,69 +12,119 @@
       }
 
       body {
+        min-height: 100vh;
+        padding: 50px 20px;
+
+        font-family: Arial;
+        background-image: linear-gradient(#95c4c4, #103c44);
+        color: black;
+
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 20px;
-
-        padding-top: 60px;
+        gap: 25px;
       }
 
+      /* --- FORMULARIO --- */
       form {
-        width: 300px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
+        width: 350px;
+        padding: 30px;
 
-        background-color: gray;
-        padding: 40px;
-        border-radius: 5px;
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.336);
-      }
+        background-color: #eee;
+        border-radius: 10px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.15);
 
-      input {
-        padding: 5px 8px;
-        text-align: center;
-      }
-
-      button {
-        padding: 5px 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      button:hover {
-        transform: scale(1.1);
-      }
-
-      #lista {
         display: flex;
         flex-direction: column;
         gap: 10px;
-
-        margin-bottom: 40px;
       }
 
-      article {
-        width: 300px;
-        background-color: lightslategray;
-        color: white;
-        padding: 40px;
+      form h1 {
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      form button {
+        padding: 10px;
+        border: none;
         border-radius: 5px;
 
-        display: flex;
-        justify-content: space-between;
+        background-color: #333;
+        color: white;
+
+        cursor: pointer;
       }
 
-      h2 {
-        font-size: 1.2em;
-        font-weight: normal;
+      /* --- Filtros --- */
+
+      #filtros {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
       }
+
+      #filtros button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+
+        background-color: #333;
+        color: white;
+
+        cursor: pointer;
+      }
+
+      /* --- Lista --- */
+
+      #lista {
+        width: 350px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* --- Filmes --- */
+      article {
+        padding: 20px;
+        cursor: pointer;
+
+        background-color: #eee;
+        border-radius: 10px;
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.12);
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+
+        transition: background .2s ease;
+      }
+
+      article:hover {
+        background-color: rgb(255, 189, 189);
+      }
+
+      article h2 {
+        font-size: 1.2em;
+      }
+
+      article p {
+        color: #555;
+      }
+
     </style>
   </head>
   <body>
     <form id="form">
+      <h1>Filmes</h1>
       <input id="titulo" type="text" placeholder="Nome do filme" />
       <input id="nota" type="number" step="0.1" placeholder="Nota" />
 
@@ -91,20 +141,21 @@
 
     <script>
       let filmes = [
-        { titulo: "Interestelar", nota: 9 },
-        { titulo: "O Batman", nota: 8 },
-        { titulo: "Shrek", nota: 10 },
-        { titulo: "Corra!", nota: 8.5 },
+        { id: crypto.randomUUID(), titulo: "Interestelar", nota: 9 },
+        { id: crypto.randomUUID(), titulo: "O Batman", nota: 8 },
+        { id: crypto.randomUUID(), titulo: "Shrek", nota: 10 },
+        { id: crypto.randomUUID(), titulo: "Corra!", nota: 8.5 },
       ];
 
-      //--- Area do DOM ---
+      //--- DOM ---//
       const lista = document.getElementById("lista");
       const form = document.getElementById("form");
       const filtros = document.getElementById("filtros");
 
-      //--- Funções ---
+      //--- Funções ---//
       function criarFilme(filme) {
-        const article = document.createElement("article");
+        const card = document.createElement("article");
+        card.dataset.id = filme.id
 
         const nome = document.createElement("h2");
         nome.textContent = filme.titulo;
@@ -112,11 +163,12 @@
         const nota = document.createElement("p");
         nota.textContent = "nota: " + filme.nota;
 
-        article.appendChild(nome);
-        article.appendChild(nota);
-        lista.appendChild(article);
+        card.appendChild(nome);
+        card.appendChild(nota);
+        lista.appendChild(card);
       }
 
+      //--- Input ---//
       form.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -125,6 +177,7 @@
 
         if (inputNome.value.trim() !== "" && inputNota.value.trim() !== "") {
           const novoFilme = {
+            id: crypto.randomUUID(),
             titulo: inputNome.value,
             nota: inputNota.value,
           };
@@ -139,12 +192,24 @@
         }
       });
 
-      //--- Filtros ---
+      lista.addEventListener('click', (e) => {
+        const card = e.target.closest('article')
+        const id = card.dataset.id
+
+        filmes = filmes.filter((i)=>{
+          return i.id !== id
+        })
+
+        localStorage.setItem('filmes', JSON.stringify(filmes))
+
+        card.remove()
+      })
+
+      //--- Filtros --- //
       filtros.addEventListener("click", (e) => {
         const botao = e.target.closest("button");
         if (!botao) return;
 
-        //--- Bons acima ou igual à 9 ---
         if (botao.dataset.filtro === "bons") {
           const bons = filmes.filter((item) => {
             return item.nota >= 9;
@@ -154,13 +219,11 @@
             criarFilme(item);
           });
         
-        //--- Medianos menos q 9 ---
         } else if (botao.dataset.filtro === "medianos") {
           const medio = filmes.filter((item) => item.nota < 9);
           lista.innerHTML = "";
           medio.forEach((item) => criarFilme(item));
 
-        //--- Todos ---
         } else if (botao.dataset.filtro === "todos") {
           lista.innerHTML = "";
           filmes.forEach((item) => criarFilme(item));
@@ -168,14 +231,11 @@
       });
 
       const dados = JSON.parse(localStorage.getItem('filmes'))
-      
+
       if(dados){
         filmes = dados
-      }
-
-      filmes.forEach((item)=>{
-        criarFilme(item)
-      })
+      } 
+      filmes.forEach((item)=> criarFilme(item))
     </script>
   </body>
 </html>

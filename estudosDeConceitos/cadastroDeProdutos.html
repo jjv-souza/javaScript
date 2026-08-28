@@ -26,7 +26,6 @@
       }
 
       /* --- Formulário --- */
-
       form {
         width: 350px;
         padding: 30px;
@@ -104,6 +103,8 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+
+        transition: background .1s ease;
       }
 
       article h2 {
@@ -114,16 +115,8 @@
         color: #555;
       }
 
-      article button {
-        align-self: flex-end;
-
-        padding: 6px 10px;
-        border: none;
-        border-radius: 5px;
-
-        background-color: #b3261e;
-        color: white;
-
+      article:hover {
+        background-color: #b3261e2d;
         cursor: pointer;
       }
     </style>
@@ -153,10 +146,10 @@
 
     <script>
       let produtos = [
-        { nome: "Teclado", preco: 150, categoria: "Periférico" },
-        { nome: "Mouse", preco: 80, categoria: "Periférico" },
-        { nome: "Monitor", preco: 900, categoria: "Hardware" },
-        { nome: "SSD 1TB", preco: 450, categoria: "Hardware" },
+        { id: crypto.randomUUID, nome: "Teclado", preco: 150, categoria: "Periférico" },
+        { id: crypto.randomUUID, nome: "Mouse", preco: 80, categoria: "Periférico" },
+        { id: crypto.randomUUID, nome: "Monitor", preco: 900, categoria: "Hardware" },
+        { id: crypto.randomUUID, nome: "SSD 1TB", preco: 450, categoria: "Hardware" },
       ];
 
       //--- DOM ---//
@@ -167,6 +160,7 @@
       //--- FUNÇÕES ---//
       function criarProduto(novo) {
         const card = document.createElement('article')
+        card.dataset.id = novo.id
 
         let nome = document.createElement("h2");
         nome.textContent = novo.nome;
@@ -197,6 +191,7 @@
           categoria.value.trim() !== ""
         ) {
             const novoProduto = {
+                id: crypto.randomUUID(),
                 nome: nome.value,
                 preco: preco.value,
                 categoria: categoria.value
@@ -241,12 +236,25 @@
         }
       })
 
+      //---Remover---//
+      lista.addEventListener('click', (e) => {
+        const card = e.target.closest('article')
+        if(!card) return
+
+        const id = card.dataset.id
+
+        produtos = produtos.filter((i)=> i.id !== id)
+
+        localStorage.setItem('produtos', JSON.stringify(produtos))
+
+        card.remove()
+      })
+
       //---LocalStorage---//
       const dados = JSON.parse(localStorage.getItem('produtos'))
-      if(dados){
-        produtos = dados
-      }
+      if(dados) produtos = dados
       produtos.forEach((item)=> criarProduto(item))
+
     </script>
   </body>
 </html>
