@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eu te Amo!</title>
+    <script src="https://kit.fontawesome.com/ac52fd1507.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            height: 98vh;
+            background-color: #eee;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            background-color: transparent;
+            font-size: 3em;
+            font-family: Arial, Helvetica, sans-serif;
+            border: none;
+
+            cursor: pointer;
+            transition: all .2s ease;
+
+            z-index: 1;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        button:active {
+            color: lightcoral;
+            transform: scale(1);
+        }
+
+        #lista {
+            position: absolute;
+            top: 0;
+            left: 0;
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+
+            padding: 15px;
+        }
+
+        #lista div {
+            background-color: #cccccc1c;
+            padding: 0px 5px;
+            border-radius: 20px;
+        }
+
+        .objeto {
+            cursor: pointer;
+            user-select: none;
+        }
+
+    </style>
+</head>
+<body>
+    <button id="coracao">
+        <i class="fa-solid fa-heart"></i>
+    </button>
+    <div id="lista"></div>
+
+    <script>
+        let item = []
+
+        /* --- DOM --- */
+        const lista = document.getElementById('lista')
+        const coracao = document.getElementById('coracao')
+
+        /* --- Funções --- */
+        function novoItem(novo){
+            const div = document.createElement('div')
+            div.dataset.id = novo.id
+            div.dataset.ativo = novo.ativo
+
+            const p = document.createElement('p')
+            p.textContent = novo.nome
+            p.classList.add('objeto')
+
+            const icon = document.createElement('i')
+            icon.classList.add('fa-heart')
+
+            novo.ativo === true
+            ?icon.classList.toggle('fa-solid')
+            :icon.classList.toggle('fa-regular')
+            
+            
+
+            p.appendChild(icon)
+            div.appendChild(p)
+            lista.appendChild(div)
+        }
+
+        coracao.addEventListener('click', (e) => {
+            const botao = e.target.closest('button')
+            if(!botao) return
+
+            const criarItem = {
+                id: crypto.randomUUID(),
+                nome: 'Eu te amo',
+                ativo: true
+            }
+
+            item.push(criarItem)
+            novoItem(criarItem)
+
+            localStorage.setItem('item', JSON.stringify(item))
+        })
+
+        lista.addEventListener('click', (e) => {
+            const card = e.target.closest('div')
+            if(!card) return
+
+            const id = card.dataset.id
+            const obj = item.find((i) => i.id === id)
+
+            if(obj.ativo === true){
+                obj.ativo = obj.ativo === true
+                ?false
+                :true
+
+                const icon = card.querySelector('i')
+                icon.classList.toggle('fa-regular')
+                icon.classList.toggle('fa-solid')
+            }else{
+                item = item.filter((i)=> i.id !== id)
+                card.remove()
+            }
+
+            localStorage.setItem('item', JSON.stringify(item))
+        })
+
+        const dados = JSON.parse(localStorage.getItem('item'))
+        if(dados) item = dados
+
+        item.forEach((i) => novoItem(i))
+
+        console.log(item)
+    </script>
+</body>
+</html>
