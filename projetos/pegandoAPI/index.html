@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pegando APIS</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font: normal 1em arial;
+            background-image: linear-gradient(to top, #663766, #6c62c5);
+
+            padding: 40px 60px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        #form {
+            width: 350px;
+            background-color: #eee;
+            border-radius: 5px;
+
+            padding: 40px;
+        }
+
+        input, button {
+            padding: 8px 5px;
+
+            cursor: pointer;
+        }
+
+        #form h1 {
+            padding-bottom: 40px;
+            text-align: center;
+        }
+
+        #lista {
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        article {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <form id="form" action="">
+        <h1>Usuarios</h1>
+
+        <input type="text" id="input" placeholder="Nome de Usuario">
+
+        <button>Pesquisar</button>
+    </form>
+    <div id="lista">
+        
+    </div>
+
+    <script>
+        const lista = document.getElementById('lista')
+        const form = document.getElementById('form')
+
+        function novoCard(u) {
+
+            const card = document.createElement('article')
+
+            const nome = document.createElement('h2')
+            nome.textContent = u.name
+
+            const email = document.createElement('p')
+            email.textContent = 'Email: '+ u.email
+
+            const phone = document.createElement('p')
+            phone.textContent = 'Telefone: '+ u.phone
+
+            const city = document.createElement('p')
+            city.textContent = 'Cidade: '+ u.address.city
+
+            card.append(nome, email, phone, city)
+            lista.appendChild(card)
+
+        }
+
+        async function pegarDados(){
+
+            const resposta = await fetch('https://jsonplaceholder.typicode.com/users')
+
+            const dados = await resposta.json()
+
+            //=====================================
+
+            dados.forEach((i) => {
+                novoCard(i)
+            });
+            
+            form.addEventListener('submit', (e) => {
+                e.preventDefault()
+
+                const input = document.getElementById('input')
+                if(input.value.trim() === '') return
+
+                const usuario = dados.find((i) => {
+                    return i.username.toLowerCase() === input.value.toLowerCase()
+                })
+
+                if(usuario){
+                    lista.innerHTML = ''
+                    novoCard(usuario)  
+                }else{
+                    alert('nao foi possivel encontrar')
+                }               
+            })
+        }
+        pegarDados()
+    </script>
+</body>
+</html>
